@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { initManifold, setWasmUrl } from '../lib/evaluate';
-import {cleanup, evaluateCADToModel, initEvaluator} from './worker';
+import {setWasmUrl } from 'manifold-3d/lib/wasm';
+import {cleanup, evaluateCADToModel} from './worker';
 
 // Setup complete
 self.postMessage(null);
 
-let initialized = false;
 let wasmUrl: string | undefined = undefined;
 
 
@@ -48,11 +47,6 @@ self.onmessage = async (e) => {
     return;
   }
   try {
-    if (!initialized) {
-      await initManifold();
-      await initEvaluator();
-      initialized = true;
-    }
     const result = await evaluateCADToModel(e.data.code);
     self.postMessage(result);
   } catch (error: any) {
