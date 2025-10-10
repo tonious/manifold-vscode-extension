@@ -1115,7 +1115,7 @@ packages:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
   manifold-3d@file:manifold-3d-3.2.1.tgz:
-    resolution: {integrity: sha512-XuXqHLzMcqTbQPu93adZ6eF67L40AFxVKFLXRFVSps+8wpJmTPaq4phLooxBNBhvUGLRFiNGy5k84RAGH00S5g==, tarball: file:manifold-3d-3.2.1.tgz}
+    resolution: {integrity: sha512-MoDE9tuK+FKTPXDPCHWkJ8JZxRd2iJQRkkO5QCzIyhqlGQZ1IR5Shdpzn+YioNu0WC9wXsuUTvE3ABm3lprHZg==, tarball: file:manifold-3d-3.2.1.tgz}
     version: 3.2.1
     hasBin: true
 

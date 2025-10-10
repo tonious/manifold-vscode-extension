@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 // Import the worker as a URL so Vite bundles it as an asset, but do not use directly
-import ManifoldWorker from './wasm/examples/worker-wrapper.ts?worker';
+import ManifoldWorker from 'manifold-3d/lib/worker?worker';
+import type {Message, MessageToWorker, MessageFromWorker} from 'manifold-3d/lib/worker';
 
 import { Viewer } from './components/Viewer';
 import { Console } from './components/Console';
@@ -12,6 +13,7 @@ export default function App() {
   const workerRef = useRef<Worker>(null);
   const [glbUrl, setGlbUrl] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
+  const log = (msg:string) => setLogs((prev) => [...prev, msg])
 
   // Prevent tree-shaking by referencing the ManifoldWorker in a dummy way
   if (typeof ManifoldWorker === 'string') {
@@ -22,20 +24,41 @@ export default function App() {
     // Get the injected worker and wasm URLs from the global window
     const workerUrl = (window as any).MANIFOLD_WORKER_URL;
     const wasmUrl = (window as any).MANIFOLD_WASM_URL;
+
     let cancelled = false;
+    let worker: null | Worker = null;
+
     (async () => {
-      // Fetch the worker script and create a blob URL
-      const workerScript = await fetch(workerUrl).then(r => r.text());
       if (cancelled) return;
-      const blob = new Blob([workerScript], { type: 'application/javascript' });
-      const worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
-      workerRef.current = worker;
+      try {
+        // Fetch the worker script and create a blob URL
+        // As per https://code.visualstudio.com/api/extension-guides/webview#using-web-workers
+        const workerScript = await fetch(workerUrl).then(r => r.text());
+        const blob = new Blob([workerScript], { type: 'application/javascript' });
+        worker = new Worker(URL.createObjectURL(blob), { type: 'module' });
+        workerRef.current = worker;
+      } catch (e) {
+        log((e as any).toString());
+        return;
+      }
+
       worker.onmessage = (e) => {
-        if (e.data?.log) setLogs((prev) => [...prev, e.data.log]);
-        if (e.data?.glbURL) setGlbUrl(e.data.glbURL);
+        const message = e.data as Message;
+        if (message.type === 'ready') {
+          log("Manifold worker ready.");
+        } else if (message.type === 'error') {
+          log((message as MessageFromWorker.Error).message);
+        } else if (message.type === 'log') {
+          log((message as MessageFromWorker.Log).message);
+        } else if (message.type === 'done') {
+          workerRef.current?.postMessage({type: 'export', extension: 'glb'} as MessageToWorker.Export);
+        } else if (message.type === 'blob') {
+          const { blobURL, extension } = (message as MessageFromWorker.Blob);
+          if (extension == 'glb') setGlbUrl(blobURL);
+        }
       };
       // Pass the wasm URL to the worker for use in evaluate.ts
-      worker.postMessage({ type: 'init', wasmUrl });
+      worker.postMessage({ type: 'initialize', manifoldWasmUrl: wasmUrl } as MessageToWorker.Initialize);
       window.addEventListener('message', (event) => {
         if (event.data?.type === 'updateScript') {
           setLogs([]);
@@ -43,7 +66,7 @@ export default function App() {
           console.log('[App] posting code to worker', event.data.fileName, event.data.code);
           // Transpile TypeScript to JavaScript before sending to worker
           const javascript = transpile(event.data.code, { module: ModuleKind.ESNext, target: ScriptTarget.ESNext });
-          workerRef.current?.postMessage({ code: javascript, fileName: event.data.fileName });
+          workerRef.current?.postMessage({ type: 'evaluate', code: javascript, filename: event.data.fileName } as MessageToWorker.Evaluate);
         }
       });
       // Signal to vscode that app is ready

@@ -10,9 +10,12 @@ export function registerManifoldTypes(context: vscode.ExtensionContext) {
       const wsRoot = wsFolders[0].uri;
       const vscodeDir = vscode.Uri.joinPath(wsRoot, '.vscode');
       const topLevelTypeFile = vscode.Uri.joinPath(vscodeDir, 'manifold-types.d.ts');
-      const globalTypes = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview', 'src', 'wasm', 'manifold-global-types.d.ts');
-      const encapsulatedTypes = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview', 'src', 'wasm', 'manifold-encapsulated-types.d.ts');
-      const editorTypes = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview', 'src', 'wasm', 'examples', 'public', 'editor.d.ts');
+      const manifoldPath = ['src', 'webview', 'node_modules', 'manifold-3d'];
+      const globalTypes = vscode.Uri.joinPath(context.extensionUri, ...manifoldPath, 'manifold-global-types.d.ts');
+      const encapsulatedTypes = vscode.Uri.joinPath(context.extensionUri, ...manifoldPath, 'manifold-encapsulated-types.d.ts');
+      const editorTypes = vscode.Uri.joinPath(context.extensionUri, ...manifoldPath, 'types', 'manifoldCAD.d.ts');
+      const gllMatrixTypes = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview', 'types', 'gl-matrix.d.ts');
+
       try {
         // Create .vscode dir if it doesn't exist
         try {

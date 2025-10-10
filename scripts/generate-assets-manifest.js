@@ -11,7 +11,7 @@ function findFile(dir, prefix, ext) {
 }
 
 function main() {
-  const worker = findFile(assetsDir, 'worker-wrapper', '.js');
+  const worker = findFile(assetsDir, 'worker', '.js');
   const wasm = findFile(assetsDir, 'manifold', '.wasm');
   const mainJs = findFile(mediaDir, 'main', '.js');
   const mainCss = findFile(assetsDir, 'index', '.css');
