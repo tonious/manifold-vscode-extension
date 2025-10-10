@@ -27,6 +27,14 @@ This extension has been developed with support from [Cookiecad](https://cookieca
 - **Animation Support:** Visualize and scrub through mesh animations and transformations.
 - **Live Editing:** See changes reflected in real time as you edit your code.
 
+- **Configurable File Extensions** This extension allows you to configure which file extensions are treated as ManifoldCAD scripts. By default, files ending with `.manifoldcad` or `.mfc` are recognized, but you can change this in your VS Code settings under `manifold-vscode-extension.fileExtensions`.
+
+For example, to also use regular `.ts` or `.js` files as ManifoldCAD scripts, set the extension setting to:
+
+```
+.manifoldcad, .mfc, .ts, .js
+```
+
 ## How It Works
 
 The extension provides a custom viewer for `.mfc` and `.manifoldcad` files, opening a webview panel that renders your 3D models and animations. The webview is built with React and Vite, and leverages the Manifold WASM bindings for mesh generation.
