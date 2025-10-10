@@ -5,8 +5,18 @@ import { sendScriptToGenerate } from './utils';
 export function activate(context: vscode.ExtensionContext) {
   // Register .mfc/.manifoldcad as TypeScript with Manifold types
   registerManifoldTypes(context);
-  let panel: vscode.WebviewPanel | undefined;
 
+  // Allow the user to choose file extensions which will trigger updates.
+  const isAManifoldScript = (filename:string) => {
+    const config = vscode.workspace.getConfiguration('manifold-vscode-extension');
+    const extensions = (config.get<string>("fileExtensions") || ".manifoldcad, .mfc")
+      .split(",").map(s => s.trim());
+    const ext = filename.match(/\.([^.]+)$/)?.shift();
+    console.log({ext, extensions});
+    return ext && extensions.includes(ext);
+  };
+
+  let panel: vscode.WebviewPanel | undefined;
   const openViewer = vscode.commands.registerCommand('manifold.openViewer', async () => {
     if (panel) {
       panel.reveal();
@@ -98,11 +108,11 @@ export function activate(context: vscode.ExtensionContext) {
       if (message && message.type === 'ready') {
         let doc: vscode.TextDocument | undefined = undefined;
         const activeEditor = vscode.window.activeTextEditor;
-        if (activeEditor && /\.(mfc|manifoldcad)$/.test(activeEditor.document.fileName)) {
+        if (activeEditor && isAManifoldScript(activeEditor.document.fileName)) {
           doc = activeEditor.document;
         } else {
           // Fallback: find the first visible .mfc/.manifoldcad file
-          doc = vscode.window.visibleTextEditors.find(d => /\.(mfc|manifoldcad)$/.test(d.document.fileName))?.document;
+          doc = vscode.window.visibleTextEditors.find(d => isAManifoldScript(d.document.fileName))?.document;
         }
         if (doc) {
           sendScriptToGenerate(panel as vscode.WebviewPanel, doc);
@@ -116,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Listen for file saves and send code to the webview
   vscode.workspace.onDidSaveTextDocument((doc) => {
     if (!panel) return;
-    if (!/\.(mfc|manifoldcad)$/.test(doc.fileName)) return;
+    if (!isAManifoldScript(doc.fileName)) return;
     sendScriptToGenerate(panel, doc);
   });
 }
