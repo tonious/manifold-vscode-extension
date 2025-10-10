@@ -74,3 +74,21 @@ export const isAManifoldScript = (filename: string) => {
   console.log({ ext, extensions });
   return ext && extensions.includes(ext);
 };
+
+/**
+ * Check if type injection (the triple-slash reference) should be applied to a given file, based on user settings.
+ * @param filename The filename to check
+ * @returns True if type injection is enabled for the file, false otherwise
+ */
+export const isTypeInjectionEnabledForFile = (filename: string) => {
+  const config = vscode.workspace.getConfiguration('manifold-vscode-extension');
+  let extensionsSetting = config.get<string>("typeInjectionFileExtensions");
+  if (!extensionsSetting) {
+    // Default to fileExtensions if not set
+    extensionsSetting = config.get<string>("fileExtensions") || ".manifoldcad, .mfc";
+  }
+  const extensions = extensionsSetting
+    .split(",").map(s => s.trim());
+  const ext = filename.match(/\.([^.]+)$/)?.shift();
+  return ext && extensions.includes(ext);
+}

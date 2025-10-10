@@ -35,6 +35,8 @@ For example, to also use regular `.ts` or `.js` files as ManifoldCAD scripts, se
 .manifoldcad, .mfc, .ts, .js
 ```
 
+- **Type Injection File Extensions**: Control which file extensions receive automatic type injection (the triple-slash reference to Manifold types) using the `manifold-vscode-extension.typeInjectionFileExtensions` setting. If not set, it defaults to the value of `fileExtensions`. This allows you to preview `.ts` or `.js` files without injecting the triple-slash reference, if desired.
+
 ## How It Works
 
 The extension provides a custom viewer for `.mfc` and `.manifoldcad` files, opening a webview panel that renders your 3D models and animations. The webview is built with React and Vite, and leverages the Manifold WASM bindings for mesh generation.

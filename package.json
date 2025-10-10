@@ -61,6 +61,11 @@
           "type": "string",
           "default": ".mfc, .manifoldcad",
           "description": "When an open file with one of these extensions is saved, the preview window will be updated."
+        },
+        "manifold-vscode-extension.typeInjectionFileExtensions": {
+          "type": "string",
+          "default": "",
+          "description": "File extensions (comma-separated, with dot) that should receive automatic type injection (triple-slash reference). If empty, defaults to fileExtensions."
         }
       }
     }

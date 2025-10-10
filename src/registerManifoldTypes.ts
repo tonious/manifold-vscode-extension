@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { addManifoldTypesComment, isAManifoldScript } from './utils';
+import { addManifoldTypesComment, isTypeInjectionEnabledForFile } from './utils';
 
 
 export function registerManifoldTypes(context: vscode.ExtensionContext) {
@@ -83,7 +83,7 @@ declare const module: ManifoldToplevel;
 
   // On open, if .mfc/.manifoldcad, ensure type file and auto-insert triple-slash reference if missing
   vscode.workspace.onDidOpenTextDocument(async (doc: vscode.TextDocument) => {
-    if (isAManifoldScript(doc.fileName)) {
+    if (isTypeInjectionEnabledForFile(doc.fileName)) {
       await ensureManifoldTypesFile();
       addManifoldTypesComment(doc);
     }
@@ -91,7 +91,7 @@ declare const module: ManifoldToplevel;
 
   // On save, ensure triple-slash reference is present (and type file exists)
   vscode.workspace.onDidSaveTextDocument(async (doc: vscode.TextDocument) => {
-    if (isAManifoldScript(doc.fileName)) {
+    if (isTypeInjectionEnabledForFile(doc.fileName)) {
       await ensureManifoldTypesFile();
       addManifoldTypesComment(doc);
     }
