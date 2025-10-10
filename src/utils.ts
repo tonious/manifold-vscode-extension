@@ -30,7 +30,7 @@ function relativeUriPath(from: vscode.Uri, to: vscode.Uri): string {
 }
 
 export const addManifoldTypesComment = async (doc: vscode.TextDocument) => {
-  if ((doc.languageId === 'typescript' || doc.languageId === 'plaintext') && (doc.fileName.endsWith('.mfc') || doc.fileName.endsWith('.manifoldcad'))) {
+  if (isAManifoldScript(doc.fileName)) {
     const tripleSlash = generateManifoldTypesComment(doc);
     const text = doc.getText();
     const hasTripleSlash = text.includes(tripleSlash);
@@ -59,3 +59,18 @@ export function sendScriptToGenerate(panel: vscode.WebviewPanel, doc: vscode.Tex
     fileName: doc.fileName
   });
 }
+
+/**
+ * Check if a filename corresponds to a Manifold script, based on user settings
+ * @param filename The filename to check
+ * @returns True if the file is a Manifold script, false otherwise
+ */
+export const isAManifoldScript = (filename: string) => {
+  console.log('Checking if file is a Manifold script:', filename);
+  const config = vscode.workspace.getConfiguration('manifold-vscode-extension');
+  const extensions = (config.get<string>("fileExtensions") || ".manifoldcad, .mfc")
+    .split(",").map(s => s.trim());
+  const ext = filename.match(/\.([^.]+)$/)?.shift();
+  console.log({ ext, extensions });
+  return ext && extensions.includes(ext);
+};

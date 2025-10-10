@@ -1,20 +1,10 @@
 import { registerManifoldTypes } from './registerManifoldTypes';
 import * as vscode from 'vscode';
-import { sendScriptToGenerate } from './utils';
+import { isAManifoldScript, sendScriptToGenerate } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
   // Register .mfc/.manifoldcad as TypeScript with Manifold types
   registerManifoldTypes(context);
-
-  // Allow the user to choose file extensions which will trigger updates.
-  const isAManifoldScript = (filename:string) => {
-    const config = vscode.workspace.getConfiguration('manifold-vscode-extension');
-    const extensions = (config.get<string>("fileExtensions") || ".manifoldcad, .mfc")
-      .split(",").map(s => s.trim());
-    const ext = filename.match(/\.([^.]+)$/)?.shift();
-    console.log({ext, extensions});
-    return ext && extensions.includes(ext);
-  };
 
   let panel: vscode.WebviewPanel | undefined;
   const openViewer = vscode.commands.registerCommand('manifold.openViewer', async () => {
