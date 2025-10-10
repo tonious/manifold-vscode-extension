@@ -54,7 +54,16 @@
           ".manifoldcad"
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "properties": {
+        "manifold-vscode-extension.fileExtensions": {
+          "type": "string",
+          "default": ".mfc, .manifoldcad",
+          "description": "When an open file with one of these extensions is saved, the preview window will be updated."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
