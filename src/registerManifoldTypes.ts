@@ -63,23 +63,6 @@ declare const module: ManifoldToplevel;
     }
   }
 
-  // Register a TypeScript language feature for .mfc/.manifoldcad
-  const selector = [
-    { language: 'typescript', pattern: '**/*.mfc' },
-    { language: 'typescript', pattern: '**/*.manifoldcad' },
-  ];
-
-  // Provide the type definitions as in-memory extra libraries
-  const disposables: vscode.Disposable[] = [];
-  for (const sel of selector) {
-    disposables.push(vscode.languages.registerCompletionItemProvider(sel, {
-      provideCompletionItems() {
-        // No-op, just to trigger language activation
-        return undefined;
-      },
-    }));
-  }
-
 
   // On open, if .mfc/.manifoldcad, ensure type file and auto-insert triple-slash reference if missing
   vscode.workspace.onDidOpenTextDocument(async (doc: vscode.TextDocument) => {
@@ -96,6 +79,4 @@ declare const module: ManifoldToplevel;
       addManifoldTypesComment(doc);
     }
   });
-
-  context.subscriptions.push(...disposables);
 }
