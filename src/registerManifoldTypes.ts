@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { addManifoldTypesComment, isTypeInjectionEnabledForFile } from './utils';
 
-
 export function registerManifoldTypes(context: vscode.ExtensionContext) {
   // Only generate .vscode/manifold-types.d.ts when a .mfc or .manifoldcad file is opened
   async function ensureManifoldTypesFile() {
@@ -10,11 +9,10 @@ export function registerManifoldTypes(context: vscode.ExtensionContext) {
       const wsRoot = wsFolders[0].uri;
       const vscodeDir = vscode.Uri.joinPath(wsRoot, '.vscode');
       const topLevelTypeFile = vscode.Uri.joinPath(vscodeDir, 'manifold-types.d.ts');
-      const manifoldPath = ['src', 'webview', 'node_modules', 'manifold-3d'];
-      const globalTypes = vscode.Uri.joinPath(context.extensionUri, ...manifoldPath, 'manifold-global-types.d.ts');
-      const encapsulatedTypes = vscode.Uri.joinPath(context.extensionUri, ...manifoldPath, 'manifold-encapsulated-types.d.ts');
-      const editorTypes = vscode.Uri.joinPath(context.extensionUri, ...manifoldPath, 'types', 'manifoldCAD.d.ts');
-      const gllMatrixTypes = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview', 'types', 'gl-matrix.d.ts');
+      const globalTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifold-global-types.d.ts');
+      const encapsulatedTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifold-encapsulated-types.d.ts');
+      const editorTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifoldCAD.d.ts');
+      const glMatrixTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'gl-matrix.d.ts');
 
       try {
         // Create .vscode dir if it doesn't exist
@@ -31,11 +29,12 @@ export function registerManifoldTypes(context: vscode.ExtensionContext) {
         } catch { }
         if (!fileExists) {
           // Generate types file
-          let global = '', encapsulated = '', editor = '';
+          let global = '', encapsulated = '', editor = '', glMatrix = '';
           const decoder = new TextDecoder('utf-8');
-          try { global = decoder.decode(await vscode.workspace.fs.readFile(globalTypes)); } catch { }
-          try { encapsulated = decoder.decode(await vscode.workspace.fs.readFile(encapsulatedTypes)); } catch { }
-          try { editor = decoder.decode(await vscode.workspace.fs.readFile(editorTypes)); } catch { }
+          try { global = decoder.decode(await vscode.workspace.fs.readFile(globalTypes)); } catch (e) { console.log(e); }
+          try { encapsulated = decoder.decode(await vscode.workspace.fs.readFile(encapsulatedTypes)); } catch (e) { console.log(e); }
+          try { editor = decoder.decode(await vscode.workspace.fs.readFile(editorTypes)); } catch (e) { console.log(e); }
+          try { glMatrix = decoder.decode(await vscode.workspace.fs.readFile(glMatrixTypes)); } catch (e) { console.log(e); }
 
           // Apply the same transformations as editor.js
           const importableEditorTypes = editor.replace(/^import.*$/gm, '');
@@ -43,6 +42,8 @@ export function registerManifoldTypes(context: vscode.ExtensionContext) {
           const manifoldToplevel = `
 ${global.replace(/export/g, '')}
 ${encapsulated.replace(/^import.*$/gm, '').replace(/export/g, 'declare')}
+${glMatrix.replace(/^import.*$/gm, '')}
+
 declare interface ManifoldToplevel {
   CrossSection: typeof CrossSection;
   Manifold: typeof Manifold;
