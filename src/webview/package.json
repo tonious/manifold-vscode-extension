@@ -20,7 +20,8 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "three": "^0.172.0",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "esbuild-wasm": "^0.25.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
