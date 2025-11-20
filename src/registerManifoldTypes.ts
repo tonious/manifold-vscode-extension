@@ -8,11 +8,9 @@ export function registerManifoldTypes(context: vscode.ExtensionContext) {
     if (wsFolders && wsFolders.length > 0) {
       const wsRoot = wsFolders[0].uri;
       const vscodeDir = vscode.Uri.joinPath(wsRoot, '.vscode');
+      const manifoldCADTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifoldCAD.d.ts');
+      const manifoldCADGlobalTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifoldCADGlobal.d.ts');
       const topLevelTypeFile = vscode.Uri.joinPath(vscodeDir, 'manifold-types.d.ts');
-      const globalTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifold-global-types.d.ts');
-      const encapsulatedTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifold-encapsulated-types.d.ts');
-      const editorTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'manifoldCAD.d.ts');
-      const glMatrixTypes = vscode.Uri.joinPath(context.extensionUri, 'media', 'types', 'gl-matrix.d.ts');
 
       try {
         // Create .vscode dir if it doesn't exist
@@ -29,44 +27,22 @@ export function registerManifoldTypes(context: vscode.ExtensionContext) {
         } catch { }
         if (!fileExists) {
           // Generate types file
-          let global = '', encapsulated = '', editor = '', glMatrix = '';
+          let manifoldCAD = '', manifoldCADGlobal = '';
           const decoder = new TextDecoder('utf-8');
-          try { global = decoder.decode(await vscode.workspace.fs.readFile(globalTypes)); } catch (e) { console.log(e); }
-          try { encapsulated = decoder.decode(await vscode.workspace.fs.readFile(encapsulatedTypes)); } catch (e) { console.log(e); }
-          try { editor = decoder.decode(await vscode.workspace.fs.readFile(editorTypes)); } catch (e) { console.log(e); }
-          try { glMatrix = decoder.decode(await vscode.workspace.fs.readFile(glMatrixTypes)); } catch (e) { console.log(e); }
+          try { manifoldCAD = decoder.decode(await vscode.workspace.fs.readFile(manifoldCADTypes)); } catch (e) { console.log(e); }
+          try { manifoldCADGlobal = decoder.decode(await vscode.workspace.fs.readFile(manifoldCADGlobalTypes)); } catch (e) { console.log(e); }
 
-          // Apply the same transformations as editor.js
-          const importableEditorTypes = editor.replace(/^import.*$/gm, '');
+          manifoldCAD = manifoldCAD.replace(/^export /gm, '');
+          manifoldCAD += '\n';
+          manifoldCAD += manifoldCADGlobal.replace(/^export /gm, '');
 
-          const manifoldToplevel = `
-${global.replace(/export/g, '')}
-${encapsulated.replace(/^import.*$/gm, '').replace(/export/g, 'declare')}
-${glMatrix.replace(/^import.*$/gm, '')}
-
-declare interface ManifoldToplevel {
-  CrossSection: typeof CrossSection;
-  Manifold: typeof Manifold;
-  Mesh: typeof Mesh;
-  triangulate: typeof triangulate;
-  setMinCircularAngle: typeof setMinCircularAngle;
-  setMinCircularEdgeLength: typeof setMinCircularEdgeLength;
-  setCircularSegments: typeof setCircularSegments;
-  getCircularSegments: typeof getCircularSegments;
-  resetToCircularDefaults: typeof resetToCircularDefaults;
-  setup: () => void;
-}
-declare const module: ManifoldToplevel;
-`;
-
-          await vscode.workspace.fs.writeFile(topLevelTypeFile, new TextEncoder().encode(`${manifoldToplevel}\n\n${importableEditorTypes}`));
+          await vscode.workspace.fs.writeFile(topLevelTypeFile, new TextEncoder().encode(manifoldCAD));
         }
       } catch (err) {
         vscode.window.showErrorMessage('Failed to set up Manifold types: ' + err);
       }
     }
   }
-
 
   // On open, if .mfc/.manifoldcad, ensure type file and auto-insert triple-slash reference if missing
   vscode.workspace.onDidOpenTextDocument(async (doc: vscode.TextDocument) => {

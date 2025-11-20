@@ -9,21 +9,13 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'node_modules/manifold-3d/manifold-encapsulated-types.d.ts',
+          src: 'node_modules/manifold-3d/dist/manifoldCAD.d.ts',
           dest: 'types', // dest is relative to build.outDir
         },
         {
-          src: 'node_modules/manifold-3d/manifold-global-types.d.ts',
+          src: 'node_modules/manifold-3d/dist/manifoldCADGlobals.d.ts',
           dest: 'types',
-        },
-        {
-          src: 'node_modules/manifold-3d/types/manifoldCAD.d.ts',
-          dest: 'types',
-        },
-        {
-          src: 'types/gl-matrix.d.ts',
-          dest: 'types',
-        },
+        }
       ],
     }),
   ],
