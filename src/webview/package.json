@@ -16,7 +16,7 @@
     "@jscadui/3mf-export": "^0.5.0",
     "fflate": "^0.8.2",
     "gl-matrix": "^3.4.4",
-    "manifold-3d": "file:manifold-3d-3.2.1.tgz",
+    "manifold-3d": "^3.3.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "three": "^0.172.0",
